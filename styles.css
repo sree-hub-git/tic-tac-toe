@@ -116,8 +116,8 @@ h1 {
   cursor: not-allowed;
 }
 
-/* The Board Grid Container */
-#board {
+/* The Board Grid Container – matches blueprint's .grid-container */
+.grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
@@ -135,6 +135,7 @@ h1 {
   overflow: visible;
 }
 
+/* Individual cells */
 .cell {
   position: relative;
   width: 100%;

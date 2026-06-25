@@ -151,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Disable full columns buttons
     for (let c = 0; c < 3; c++) {
-      const btn = document.getElementById(`btn-col-0${c}`); // wait, btn ids are btn-col-c
       const button = document.getElementById(`btn-col-${c}`);
       if (button) {
         button.disabled = !board.isColumnPlayable(c) || !gameActive || !isInteractive;
@@ -175,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     piece.textContent = player;
     targetCell.appendChild(piece);
 
-    // Disable full columns check
+    // Update UI controls after the move
     updateUIControls();
 
     // Check Results
