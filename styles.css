@@ -1,33 +1,86 @@
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: #f0f0f0;
+:root {
+  --bg-color: #0f172a;
+  --text-color: #ffffff;
+  --hover-color: #00ff00;
+  --glow-color: #00ff00;
+  --bg-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 2.5em;
+  color: var(--glow-color);
+}
+
 #board {
   display: grid;
-  grid-template: repeat(3, 100px) / repeat(3, 100px);
+  grid-template: repeat(3, 100px);
   gap: 5px;
   margin: 20px auto;
+  width: 90%;
+  max-width: 600px;
 }
+
 .cell {
   width: 100px;
   height: 100px;
-  background: white;
-  border: 2px solid #333;
+  background: var(--bg-shadow);
+  border: 2px solid var(--glow-color);
   font-size: 64px;
   line-height: 100px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
+
 .cell:hover {
-  background: #e0e0e0;
+  background: var(--hover-color);
 }
+
+.cell.machine-move {
+  background: var(--glow-color);
+  color: var(--text-color);
+}
+
+.cell.human-move {
+  background: var(--text-color);
+  color: var(--glow-color);
+}
+
 #status {
-  margin-top: 10px;
-  font-weight: bold;
+  font-size: 1.2em;
+  margin: 10px;
+  color: var(--glow-color);
 }
+
 #score-board {
   margin-top: 20px;
+  font-size: 1.5em;
+  color: var(--text-color);
 }
-#scores li {
-  margin: 5px 0;
+
+#scores {
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: var(--glow-color);
+}
+
+@keyframes floatUp {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.animate {
+  animation: floatUp 2s ease-in-out;
 }
