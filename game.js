@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (machineTurn) {
       const aiIndex = getAIMove();
+      if (aiIndex === -1) return;
       const aiCell = document.querySelector(`.cell[data-index="${aiIndex}"]`);
       board[aiIndex] = 'O';
       aiCell.textContent = 'O';
