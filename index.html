@@ -2,27 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anti-Gravity Tic-Tac-Toe</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1 style="color: var(--text-color); font-size: 2.5em;">Anti-Gravity Tic-Tac-Toe</h1>
-  <div id="board">
-    <div class="cell" data-index="0"></div>
-    <div class="cell" data-index="1"></div>
-    <div class="cell" data-index="2"></div>
-    <div class="cell" data-index="3"></div>
-    <div class="cell" data-index="4"></div>
-    <div class="cell" data-index="5"></div>
-    <div class="cell" data-index="6"></div>
-    <div class="cell" data-index="7"></div>
-    <div class="cell" data-index="8"></div>
+  <h1>Anti-Gravity Tic-Tac-Toe</h1>
+  <div class="subtitle">Vertical Stacking Edition</div>
+
+  <div class="game-container">
+    <!-- Left Side: Board & Column Controls -->
+    <div class="board-wrapper">
+      <div class="column-selectors">
+        <button class="col-btn" data-col="0" id="btn-col-0">Col 1</button>
+        <button class="col-btn" data-col="1" id="btn-col-1">Col 2</button>
+        <button class="col-btn" data-col="2" id="btn-col-2">Col 3</button>
+      </div>
+      
+      <div id="board">
+        <!-- Row 0 (Top) -->
+        <div class="cell" data-index="0" data-row="0" data-col="0" id="cell-0"></div>
+        <div class="cell" data-index="1" data-row="0" data-col="1" id="cell-1"></div>
+        <div class="cell" data-index="2" data-row="0" data-col="2" id="cell-2"></div>
+        
+        <!-- Row 1 (Middle) -->
+        <div class="cell" data-index="3" data-row="1" data-col="0" id="cell-3"></div>
+        <div class="cell" data-index="4" data-row="1" data-col="1" id="cell-4"></div>
+        <div class="cell" data-index="5" data-row="1" data-col="2" id="cell-5"></div>
+        
+        <!-- Row 2 (Bottom) -->
+        <div class="cell" data-index="6" data-row="2" data-col="0" id="cell-6"></div>
+        <div class="cell" data-index="7" data-row="2" data-col="1" id="cell-7"></div>
+        <div class="cell" data-index="8" data-row="2" data-col="2" id="cell-8"></div>
+      </div>
+      
+      <p id="status" class="human-turn">Your turn: X</p>
+    </div>
+
+    <!-- Right Side: Leaderboard & Help -->
+    <div class="side-panel">
+      <div class="panel">
+        <h2>Leaderboard</h2>
+        <ul id="scores"></ul>
+      </div>
+
+      <div class="panel">
+        <h2>How to Play</h2>
+        <ul class="instructions-list">
+          <li>Choose a column (1, 2, or 3) using the top buttons or by clicking any cell.</li>
+          <li>Your mark (X) will enter from the bottom and <strong>float upwards</strong> to the highest available space.</li>
+          <li>Align 3 of your marks horizontally, vertically, or diagonally to win.</li>
+          <li>You are playing against a perfect Minimax AI (O).</li>
+        </ul>
+      </div>
+    </div>
   </div>
-  <p id="status">Your turn: X</p>
-  <div id="score-board">
-    <h2>Scores</h2>
-    <ul id="scores"></ul>
+
+  <!-- End Game Modal -->
+  <div class="modal-overlay" id="end-modal">
+    <div class="modal-content">
+      <div class="modal-title" id="modal-title">You Win!</div>
+      <div class="modal-desc" id="modal-desc">Nice moves! Save your score to the leaderboard.</div>
+      
+      <div class="form-group" id="name-form-group">
+        <label for="player-name">Player Name</label>
+        <input type="text" id="player-name" class="input-name" placeholder="Enter your name" maxlength="15" autocomplete="off">
+      </div>
+      
+      <button class="btn-primary" id="btn-save-score">Save & Play Again</button>
+      <button class="btn-secondary" id="btn-restart">Just Play Again</button>
+    </div>
   </div>
+
   <script src="game.js"></script>
 </body>
 </html>
