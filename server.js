@@ -1,7 +1,7 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const app = express();
-const db = new sqlite3.Database(':memory:'); // Use a file like './leaderboard.db' for persistence
+const db = new sqlite3.Database('./database.sqlite'); // Persistent file storage
 
 app.use(express.json());
 app.use(express.static('.')); // Serve static files from the current directory
@@ -17,10 +17,12 @@ db.serialize(() => {
 
 // Route to save a score
 app.post('/score', (req, res) => {
-  const { player_name, score } = req.body;
-  if (!player_name || score == null) {
-    return res.status(400).json({ error: 'Missing data' });
+  const { player_name } = req.body;
+  if (!player_name) {
+    return res.status(400).json({ error: 'Missing player name' });
   }
+  // Server-side score validation: always increment by 1 for a win
+  const score = 1;
   const stmt = db.prepare('INSERT INTO leaderboard (player_name, score) VALUES (?, ?)');
   stmt.run(player_name, score, function(err) {
     if (err) {

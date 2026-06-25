@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('/score', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ player_name: playerName, score: 1 })
+          body: JSON.stringify({ player_name: playerName })
         })
         .then(r => r.json())
         .then(data => {
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/scores')
       .then(r => r.json())
       .then(scores => {
-        scoreBoard.innerHTML = '';
+        scoreBoard.textContent = '';
         scores.forEach(s => {
           const li = document.createElement('li');
           li.textContent = `${s.player_name}: ${s.score}`;
