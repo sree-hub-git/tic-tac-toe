@@ -19,21 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (board[clickedIndex] !== '' || !gameActive) return;
 
     if (machineTurn) {
-      // Machine's turn
-      const machineMove = machineMove();
-      board[clickedIndex] = machineMove;
-      clickedCell.textContent = machineMove;
-      clickedCell.classList.add('machine-move');
-      clickedCell.classList.remove('disabled');
-      status.textContent = `Machine is thinking...`;
+      const aiIndex = getAIMove();
+      const aiCell = document.querySelector(`.cell[data-index="${aiIndex}"]`);
+      board[aiIndex] = 'O';
+      aiCell.textContent = 'O';
+      aiCell.classList.add('machine-move');
+      status.textContent = `Machine played at position ${aiIndex + 1}`;
       machineTurn = false;
       checkResult();
     } else {
-      // Human's turn
       board[clickedIndex] = currentPlayer;
       clickedCell.textContent = currentPlayer;
       clickedCell.classList.add('human-move');
-      clickedCell.classList.remove('machine-move');
       status.textContent = `Your turn: ${currentPlayer}`;
       gameActive = false;
       machineTurn = true;
@@ -41,55 +38,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function machineMove() {
-    // Check for immediate win or block
-    const win = checkWin();
-    if (win) {
-      return win ? 'O' : 'X';
+  function getAIMove() {
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === '') return i;
     }
-
-    // Check for block (prevent human from clicking)
-    if (board[0] === currentPlayer) {
-      return board[3]; // Block human from clicking
-    }
-
-    // Fallback to random move (for demo)
-    const randomIndex = Math.floor(Math.random() * 9);
-    return board[randomIndex];
+    return -1;
   }
 
-  function checkWin() {
+  function checkWin(player) {
     for (let i = 0; i < winningConditions.length; i++) {
       const [a,b,c] = winningConditions[i];
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a] === currentPlayer;
+        return board[a] === player;
       }
     }
-    return board[0] === currentPlayer;
+    return false;
   }
 
   function checkResult() {
     let roundWon = false;
+    let winner = null;
     for (let i = 0; i < winningConditions.length; i++) {
       const [a,b,c] = winningConditions[i];
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         roundWon = true;
+        winner = board[a];
         break;
       }
     }
 
     if (roundWon) {
-      status.textContent = `You win!`;
+      if (winner === 'O') {
+        status.textContent = `Machine won!`;
+      } else {
+        status.textContent = `You win!`;
+      }
       gameActive = false;
-      currentPlayer = machineTurn ? 'O' : 'X';
-      status.textContent = `Machine won!`;
       machineTurn = false;
       loadScores();
-    } else if (board.includes('')) {
+    } else if (!board.includes('')) {
       status.textContent = "It's a draw!";
       gameActive = false;
     } else {
-      currentPlayer = machineTurn ? 'O' : 'X';
       status.textContent = `Your turn: ${currentPlayer}`;
     }
   }
