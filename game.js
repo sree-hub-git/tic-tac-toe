@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   // --- UI Elements ---
   const cells = document.querySelectorAll('.cell');
-  const colButtons = document.querySelectorAll('.col-btn');
   const status = document.getElementById('status');
   const scoreBoard = document.getElementById('scores');
   const endModal = document.getElementById('end-modal');
@@ -12,178 +11,100 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnRestart = document.getElementById('btn-restart');
   const nameFormGroup = document.getElementById('name-form-group');
 
-  // --- Game State Classes ---
-  class GravityBoard {
-    constructor() {
-      // 3x3 Grid: Row 0 is Top, Row 2 is Bottom
-      this.grid = [
-        [null, null, null],
-        [null, null, null],
-        [null, null, null]
-      ];
-    }
-
-    placePiece(col, player) {
-      // Piece enters at Row 2, floats upward to the highest empty row (0, 1, 2)
-      for (let r = 0; r < 3; r++) {
-        if (this.grid[r][col] === null) {
-          this.grid[r][col] = player;
-          return { row: r, col: col };
-        }
-      }
-      return null; // Column is full
-    }
-
-    undoMove(row, col) {
-      this.grid[row][col] = null;
-    }
-
-    isColumnPlayable(col) {
-      return this.grid[2][col] === null;
-    }
-
-    isFull() {
-      return this.grid[2].every(cell => cell !== null);
-    }
-
-    hasWon(player) {
-      // Check Rows
-      for (let r = 0; r < 3; r++) {
-        if (this.grid[r][0] === player && this.grid[r][1] === player && this.grid[r][2] === player) return true;
-      }
-      // Check Columns
-      for (let c = 0; c < 3; c++) {
-        if (this.grid[0][c] === player && this.grid[1][c] === player && this.grid[2][c] === player) return true;
-      }
-      // Check Diagonals
-      if (this.grid[0][0] === player && this.grid[1][1] === player && this.grid[2][2] === player) return true;
-      if (this.grid[0][2] === player && this.grid[1][1] === player && this.grid[2][0] === player) return true;
-
-      return false;
-    }
-  }
-
-  class GravityAI {
-    constructor(aiPlayer = 'O', humanPlayer = 'X') {
-      this.ai = aiPlayer;
-      this.human = humanPlayer;
-    }
-
-    minimax(board, depth, isMaximizing) {
-      if (board.hasWon(this.ai)) return 10 - depth;
-      if (board.hasWon(this.human)) return depth - 10;
-      if (board.isFull()) return 0;
-
-      if (isMaximizing) {
-        let bestScore = -Infinity;
-        for (let col = 0; col < 3; col++) {
-          if (board.isColumnPlayable(col)) {
-            const coords = board.placePiece(col, this.ai);
-            const score = this.minimax(board, depth + 1, false);
-            board.undoMove(coords.row, coords.col);
-            bestScore = Math.max(bestScore, score);
-          }
-        }
-        return bestScore;
-      } else {
-        let bestScore = Infinity;
-        for (let col = 0; col < 3; col++) {
-          if (board.isColumnPlayable(col)) {
-            const coords = board.placePiece(col, this.human);
-            const score = this.minimax(board, depth + 1, true);
-            board.undoMove(coords.row, coords.col);
-            bestScore = Math.min(bestScore, score);
-          }
-        }
-        return bestScore;
-      }
-    }
-
-    computeBestMove(board) {
-      let bestScore = -Infinity;
-      let bestMove = -1;
-
-      for (let col = 0; col < 3; col++) {
-        if (board.isColumnPlayable(col)) {
-          const coords = board.placePiece(col, this.ai);
-          const score = this.minimax(board, 0, false);
-          board.undoMove(coords.row, coords.col);
-
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = col;
-          }
-        }
-      }
-      return bestMove;
-    }
-  }
-
   // --- Game Engine Variables ---
-  let board = new GravityBoard();
-  const ai = new GravityAI('O', 'X');
+  let board = Array(9).fill(null); // Flat array representing cells 0-8
   let gameActive = true;
-  let isInteractive = true; // Locks controls during AI turns
+  let isInteractive = true; // Prevents clicking during AI calculation
 
-  // --- Interaction Logics ---
+  const winningConditions = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
+    [0, 4, 8], [2, 4, 6]             // diags
+  ];
+
+  // --- AI Minimax Solver (Classic Tic-Tac-Toe) ---
   
-  function updateUI() {
-    // Clear all pieces from cells
-    cells.forEach(cell => {
-      cell.innerHTML = '';
+  function checkWin(boardState, player) {
+    return winningConditions.some(cond => {
+      return cond.every(idx => boardState[idx] === player);
     });
+  }
 
-    // Render pieces based on board state
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 3; c++) {
-        const value = board.grid[r][c];
-        if (value !== null) {
-          const index = r * 3 + c;
-          const cell = document.querySelector(`.cell[data-index="${index}"]`);
-          
-          const piece = document.createElement('div');
-          piece.className = `piece ${value.toLowerCase()}-piece`;
-          piece.textContent = value;
-          cell.appendChild(piece);
+  function isBoardFull(boardState) {
+    return boardState.every(cell => cell !== null);
+  }
+
+  function minimax(boardState, depth, isMaximizing) {
+    if (checkWin(boardState, 'O')) return 10 - depth;
+    if (checkWin(boardState, 'X')) return depth - 10;
+    if (isBoardFull(boardState)) return 0;
+
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (boardState[i] === null) {
+          boardState[i] = 'O';
+          let score = minimax(boardState, depth + 1, false);
+          boardState[i] = null;
+          bestScore = Math.max(bestScore, score);
         }
       }
-    }
-
-    // Disable full columns buttons
-    for (let c = 0; c < 3; c++) {
-      const button = document.getElementById(`btn-col-${c}`);
-      if (button) {
-        button.disabled = !board.isColumnPlayable(c) || !gameActive || !isInteractive;
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (boardState[i] === null) {
+          boardState[i] = 'X';
+          let score = minimax(boardState, depth + 1, true);
+          boardState[i] = null;
+          bestScore = Math.min(bestScore, score);
+        }
       }
+      return bestScore;
     }
   }
 
-  function handleMove(col, player) {
-    if (!gameActive || !board.isColumnPlayable(col)) return;
+  function computeBestMove(boardState) {
+    let bestScore = -Infinity;
+    let bestMove = -1;
+    for (let i = 0; i < 9; i++) {
+      if (boardState[i] === null) {
+        boardState[i] = 'O';
+        let score = minimax(boardState, 0, false);
+        boardState[i] = null;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = i;
+        }
+      }
+    }
+    return bestMove;
+  }
 
-    // Place the piece
-    const coords = board.placePiece(col, player);
-    if (!coords) return;
+  // --- Move Handler ---
 
-    // Direct DOM injection of the floating piece to avoid re-rendering entire board (preserves animation trigger)
-    const index = coords.row * 3 + coords.col;
+  function handleMove(index, player) {
+    if (!gameActive || board[index] !== null) return false;
+
+    // Update state
+    board[index] = player;
+
+    // Inject Piece to DOM
     const targetCell = document.querySelector(`.cell[data-index="${index}"]`);
-    
-    const piece = document.createElement('div');
-    piece.className = `piece ${player.toLowerCase()}-piece`;
-    piece.textContent = player;
-    targetCell.appendChild(piece);
+    if (targetCell) {
+      const piece = document.createElement('div');
+      piece.className = `piece ${player.toLowerCase()}-piece`;
+      piece.textContent = player;
+      targetCell.appendChild(piece);
+    }
 
-    // Update UI controls after the move
-    updateUIControls();
-
-    // Check Results
-    if (board.hasWon(player)) {
+    // Check Win/Draw
+    if (checkWin(board, player)) {
       gameActive = false;
       showEndGame(player === 'X' ? 'win' : 'lose');
       return true;
     }
-    if (board.isFull()) {
+    if (isBoardFull(board)) {
       gameActive = false;
       showEndGame('draw');
       return true;
@@ -192,38 +113,29 @@ document.addEventListener('DOMContentLoaded', () => {
     return false; // Game continues
   }
 
-  function updateUIControls() {
-    for (let c = 0; c < 3; c++) {
-      const button = document.getElementById(`btn-col-${c}`);
-      if (button) {
-        button.disabled = !board.isColumnPlayable(c) || !gameActive || !isInteractive;
-      }
-    }
-  }
-
   function triggerMachineTurn() {
     isInteractive = false;
-    updateUIControls();
-    
     status.textContent = "Machine is calculating...";
     status.className = "machine-turn";
 
-    // Small timeout for better gameplay pacing (letting player's animation finish)
+    // Standard AI thinking delay for visual pacing
     setTimeout(() => {
       if (!gameActive) return;
 
-      const aiMove = ai.computeBestMove(board);
-      const isOver = handleMove(aiMove, 'O');
-
-      if (!isOver) {
-        isInteractive = true;
-        updateUIControls();
-        status.textContent = "Your turn: X";
-        status.className = "human-turn";
+      const aiMove = computeBestMove(board);
+      if (aiMove !== -1) {
+        const isOver = handleMove(aiMove, 'O');
+        if (!isOver) {
+          isInteractive = true;
+          status.textContent = "Your turn: X";
+          status.className = "human-turn";
+        }
       }
-    }, 750);
+    }, 600);
   }
 
+  // --- End Game Modal ---
+  
   function showEndGame(result) {
     status.textContent = result === 'win' ? "Victory!" : result === 'lose' ? "Defeat!" : "Draw!";
     status.className = result === 'win' ? "human-turn" : result === 'lose' ? "machine-turn" : "";
@@ -233,19 +145,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (result === 'win') {
       modalTitle.textContent = "You Won!";
       modalTitle.className = "modal-title win";
-      modalDesc.textContent = "Amazing strategies. Register your score on our leaderboard!";
+      modalDesc.textContent = "Outstanding play! Log your victory to the leaderboard.";
       nameFormGroup.style.display = "block";
       btnSaveScore.style.display = "block";
     } else if (result === 'lose') {
       modalTitle.textContent = "Machine Won!";
       modalTitle.className = "modal-title lose";
-      modalDesc.textContent = "The minimax engine was too strong this time.";
+      modalDesc.textContent = "The classic Minimax engine played a perfect game.";
       nameFormGroup.style.display = "none";
       btnSaveScore.style.display = "none";
     } else {
       modalTitle.textContent = "It's a Draw!";
       modalTitle.className = "modal-title draw";
-      modalDesc.textContent = "A perfect defensive standoff on both sides.";
+      modalDesc.textContent = "Both players made perfect moves.";
       nameFormGroup.style.display = "none";
       btnSaveScore.style.display = "none";
     }
@@ -273,79 +185,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function restartGame() {
-    board = new GravityBoard();
+    board = Array(9).fill(null);
     gameActive = true;
     isInteractive = true;
     playerNameInput.value = '';
     
-    // Clear UI and pieces
+    // Reset DOM
     cells.forEach(c => c.innerHTML = '');
     endModal.classList.remove('active');
     
     status.textContent = "Your turn: X";
     status.className = "human-turn";
-    
-    updateUIControls();
-  }
-
-  // --- Interactive Highlight Effects ---
-  function highlightColumn(col, isHighlighted) {
-    cells.forEach(cell => {
-      if (parseInt(cell.getAttribute('data-col')) === col) {
-        if (isHighlighted) {
-          cell.classList.add('col-highlight');
-        } else {
-          cell.classList.remove('col-highlight');
-        }
-      }
-    });
   }
 
   // --- Listeners Setup ---
 
-  // Column Selectors
-  colButtons.forEach(btn => {
-    const col = parseInt(btn.getAttribute('data-col'));
-    btn.addEventListener('click', () => {
-      if (!isInteractive || !gameActive) return;
-      const isOver = handleMove(col, 'X');
-      if (!isOver) {
-        triggerMachineTurn();
-      }
-    });
-
-    btn.addEventListener('mouseenter', () => {
-      if (isInteractive && gameActive) highlightColumn(col, true);
-    });
-    btn.addEventListener('mouseleave', () => {
-      highlightColumn(col, false);
-    });
-  });
-
-  // Cell clicks (Fallback column triggers)
   cells.forEach(cell => {
-    const col = parseInt(cell.getAttribute('data-col'));
-    cell.addEventListener('click', () => {
-      if (!isInteractive || !gameActive || !board.isColumnPlayable(col)) return;
-      const isOver = handleMove(col, 'X');
+    cell.addEventListener('click', (e) => {
+      const index = parseInt(e.currentTarget.getAttribute('data-index'));
+      console.log(`Cell clicked: index=${index}`);
+      
+      if (!isInteractive || !gameActive || board[index] !== null) return;
+      
+      const isOver = handleMove(index, 'X');
       if (!isOver) {
         triggerMachineTurn();
       }
     });
-
-    cell.addEventListener('mouseenter', () => {
-      if (isInteractive && gameActive) highlightColumn(col, true);
-    });
-    cell.addEventListener('mouseleave', () => {
-      highlightColumn(col, false);
-    });
   });
 
-  // Modal Buttons
   btnSaveScore.addEventListener('click', saveScoreAndRestart);
   btnRestart.addEventListener('click', restartGame);
 
-  // --- Initialize Leaderboard ---
+  // --- Leaderboard Integration ---
+  
   function loadScores() {
     fetch('/scores')
       .then(r => r.json())

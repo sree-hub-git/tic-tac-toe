@@ -63,7 +63,7 @@ app.get('/scores', (req, res) => {
 /**
  * Fallback route: serve index.html for any unknown paths (useful for SPA navigation).
  */
-app.get('*', (req, res) => {
+app.get('/:wildcard*', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 

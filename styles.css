@@ -86,7 +86,7 @@ h1 {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--grid-gap);
   width: 100%;
-  max-width: 340px;
+  max-width: 500px;
   margin-bottom: 8px;
   padding: 0 16px;
 }
@@ -116,14 +116,14 @@ h1 {
   cursor: not-allowed;
 }
 
-/* The Board Grid Container – matches blueprint's .grid-container */
-.grid-container {
+/* The Board Grid Container */
+#board, .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: var(--grid-gap);
   width: 100%;
-  max-width: 340px;
+  max-width: 500px;
   aspect-ratio: 1 / 1;
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
@@ -146,6 +146,7 @@ h1 {
   cursor: pointer;
   transition: all 0.2s ease;
   overflow: visible;
+  container-type: inline-size;
 }
 
 .cell:hover {
@@ -170,12 +171,14 @@ h1 {
   align-items: center;
   justify-content: center;
   font-family: 'Orbitron', sans-serif;
-  font-size: 2.2rem;
+  font-size: clamp(2.2rem, 38cqw, 3.8rem);
   font-weight: 900;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   will-change: transform, opacity;
   animation: float-up-anim 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
 }
+
 
 /* X - Human Player (Cyan) */
 .piece.x-piece {
@@ -436,8 +439,17 @@ h1 {
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.02);
 }
+/* Animations - Falling Downward Gravity */
+.cell[data-row="0"] .piece {
+  --start-y: calc(-100% - var(--grid-gap));
+}
+.cell[data-row="1"] .piece {
+  --start-y: calc(-200% - (var(--grid-gap) * 2));
+}
+.cell[data-row="2"] .piece {
+  --start-y: calc(-300% - (var(--grid-gap) * 3));
+}
 
-/* Animations */
 @keyframes float-up-anim {
   0% {
     transform: translateY(var(--start-y));

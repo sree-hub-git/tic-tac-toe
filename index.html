@@ -7,26 +7,24 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Anti-Gravity Tic-Tac-Toe</h1>
-  <div class="subtitle">Vertical Stacking Edition</div>
+  <h1>Tic-Tac-Toe</h1>
+  <div class="subtitle">Classic Neon Edition</div>
 
   <div class="game-container">
-    <!-- Left Side: Board & Column Controls -->
+    <!-- Left Side: Board & Game Status -->
     <div class="board-wrapper">
-      <div class="column-selectors">
-        <button class="col-btn" data-col="0" id="btn-col-0">Col 1</button>
-        <button class="col-btn" data-col="1" id="btn-col-1">Col 2</button>
-        <button class="col-btn" data-col="2" id="btn-col-2">Col 3</button>
-      </div>
-      
-      <!-- Apply both id (for any legacy JS) and class (for CSS grid) -->
       <div id="board" class="grid-container">
+        <!-- Row 0 (Top) -->
         <div class="cell" data-index="0" data-row="0" data-col="0" id="cell-0"></div>
         <div class="cell" data-index="1" data-row="0" data-col="1" id="cell-1"></div>
         <div class="cell" data-index="2" data-row="0" data-col="2" id="cell-2"></div>
+        
+        <!-- Row 1 (Middle) -->
         <div class="cell" data-index="3" data-row="1" data-col="0" id="cell-3"></div>
         <div class="cell" data-index="4" data-row="1" data-col="1" id="cell-4"></div>
         <div class="cell" data-index="5" data-row="1" data-col="2" id="cell-5"></div>
+        
+        <!-- Row 2 (Bottom) -->
         <div class="cell" data-index="6" data-row="2" data-col="0" id="cell-6"></div>
         <div class="cell" data-index="7" data-row="2" data-col="1" id="cell-7"></div>
         <div class="cell" data-index="8" data-row="2" data-col="2" id="cell-8"></div>
@@ -45,10 +43,10 @@
       <div class="panel">
         <h2>How to Play</h2>
         <ul class="instructions-list">
-          <li>Choose a column (1, 2, or 3) using the top buttons or by clicking any cell.</li>
-          <li>Your mark (X) will enter from the bottom and <strong>float upwards</strong> to the highest available space.</li>
+          <li>Click any empty cell on the 3x3 grid to place your mark (X).</li>
+          <li>The AI opponent (O) will automatically calculate its move and play next.</li>
           <li>Align 3 of your marks horizontally, vertically, or diagonally to win.</li>
-          <li>You are playing against a perfect Minimax AI (O).</li>
+          <li>The game features a perfect Minimax AI engine. Can you force a draw?</li>
         </ul>
       </div>
     </div>
